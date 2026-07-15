@@ -1,0 +1,23 @@
+# Generated data (small committed fixtures live in tests/fixtures/ instead)
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+
+# SQLite artifacts
+*.db
+*.sqlite3
+
+# OS / editor
+.DS_Store
+Thumbs.db
