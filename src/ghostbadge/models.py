@@ -11,7 +11,13 @@ downstream, so they are typed and validated here, once.
 from datetime import UTC, date, datetime
 from enum import StrEnum
 
-from pydantic import BaseModel, field_serializer, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    Field,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 
 
 class EmployeeStatus(StrEnum):
@@ -51,6 +57,35 @@ class Employee(BaseModel):
         if (self.status is EmployeeStatus.TERMINATED) != (self.term_date is not None):
             raise ValueError("term_date must be set iff status is terminated")
         return self
+
+
+class Severity(StrEnum):
+    """Impact if the alert is true — orthogonal to confidence (how sure)."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class Alert(BaseModel):
+    """One correlation finding, verifiable from its evidence alone.
+
+    Evidence chains are sacred: `evidence_event_ids` must cite the exact
+    stored events that justify the alert (enforced non-empty here — an alert
+    without evidence is a bug), and `explanation` is the one-line human
+    rendering an analyst reads to verify it without touching the engine.
+    """
+
+    rule_id: str
+    rule_name: str
+    severity: Severity
+    mitre_technique: str
+    confidence: float = Field(ge=0.0, le=1.0)
+    employee_id: str
+    day: date
+    evidence_event_ids: list[str] = Field(min_length=1)
+    explanation: str
 
 
 class Label(BaseModel):
