@@ -39,18 +39,27 @@ def generate(
     ),
     out: Path = typer.Option(Path("data"), help="Output directory."),
 ) -> None:
-    """Generate the synthetic world (currently: HR roster; events follow)."""
-    from ghostbadge.generator import generate_roster, write_roster_csv
+    """Generate the synthetic world (roster + benign events; injection follows)."""
+    from ghostbadge.generator import (
+        finalize_events,
+        generate_benign_events,
+        generate_roster,
+        write_events_jsonl,
+        write_roster_csv,
+    )
     from ghostbadge.models import EmployeeStatus
 
-    roster = generate_roster(
-        n_employees=employees,
-        start_date=date.fromisoformat(start_date),
-        days=days,
-        seed=seed,
-    )
+    start = date.fromisoformat(start_date)
+    roster = generate_roster(n_employees=employees, start_date=start, days=days, seed=seed)
+    badge, auth = generate_benign_events(roster, start_date=start, days=days, seed=seed)
+    finalize_events(badge, auth)
+
     roster_path = out / "hr_roster.csv"
     write_roster_csv(roster, roster_path)
+    write_events_jsonl(badge, out / "badge_events.jsonl")
+    write_events_jsonl(auth, out / "auth_events.jsonl")
 
     n_term = sum(1 for e in roster if e.status is EmployeeStatus.TERMINATED)
     typer.echo(f"wrote {roster_path} ({len(roster)} employees, {n_term} terminated in window)")
+    typer.echo(f"wrote {out / 'badge_events.jsonl'} ({len(badge)} events)")
+    typer.echo(f"wrote {out / 'auth_events.jsonl'} ({len(auth)} events)")

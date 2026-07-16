@@ -30,6 +30,25 @@ DEPARTMENT_WEIGHTS: dict[str, int] = {
     "Facilities": 10,
 }
 
+# City-level geo tables for VPN logins (city, lat, lon). Real city
+# coordinates are fine — city-level is not identifiable — and the distances
+# between the two tables are what makes impossible-presence (GB-002) math
+# meaningful. BENIGN cities are all within commute range of the fictional
+# Bay Area HQ; DISTANT cities are all >2000 km away, reserved for injectors.
+BENIGN_CITIES: dict[str, tuple[float, float]] = {
+    "San Francisco": (37.7749, -122.4194),
+    "Oakland": (37.8044, -122.2712),
+    "Berkeley": (37.8715, -122.2730),
+    "San Jose": (37.3382, -121.8863),
+}
+DISTANT_CITIES: dict[str, tuple[float, float]] = {
+    "New York": (40.7128, -74.0060),
+    "London": (51.5074, -0.1278),
+    "Tokyo": (35.6762, 139.6503),
+    "Sydney": (-33.8688, 151.2093),
+    "Berlin": (52.5200, 13.4050),
+}
+
 # Fake-name pools. 40 x 40 pairs comfortably covers the default 50-employee
 # roster without repeats; sampling is without replacement on full names.
 FIRST_NAMES = [
