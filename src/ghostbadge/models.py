@@ -8,7 +8,7 @@ Getting those facts wrong at the model layer silently poisons every detection
 downstream, so they are typed and validated here, once.
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from enum import StrEnum
 
 from pydantic import BaseModel, field_serializer, field_validator, model_validator
@@ -114,7 +114,7 @@ class _TimestampedEvent(BaseModel):
     def _require_aware_utc(cls, v: datetime) -> datetime:
         if v.tzinfo is None or v.utcoffset() is None:
             raise ValueError("event timestamps must be timezone-aware (UTC)")
-        return v
+        return v.astimezone(UTC)  # normalize offsets at the border, never later
 
     @field_serializer("ts")
     def _serialize_ts(self, v: datetime) -> str:

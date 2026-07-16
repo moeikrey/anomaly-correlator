@@ -74,6 +74,7 @@ class _DayWriter:
         self.auth = auth_out
 
     def badge_event(self, zone: str, direction: BadgeDirection, ts: datetime) -> None:
+        ts = ts.replace(microsecond=0)  # all event streams are second-precision
         door = f"D-{zone}-{self.rng.randint(1, 2)}"
         if direction is BadgeDirection.IN and self.rng.random() < DENIED_RETRY_PROB:
             self.badge.append(

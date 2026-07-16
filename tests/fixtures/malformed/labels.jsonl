@@ -1,0 +1,2 @@
+{"scenario": "ghost_login", "rule_id_expected": "GB-001", "employee_id": "E001", "event_ids": ["a-000001"], "day": "2026-03-02"}
+{"scenario": "ghost_login"}

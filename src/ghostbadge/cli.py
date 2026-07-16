@@ -22,6 +22,32 @@ def main() -> None:
 
 
 @app.command()
+def ingest(
+    data_dir: Path = typer.Argument(
+        Path("data"), exists=True, file_okay=False, help="Directory with generated dataset."
+    ),
+    db: Path | None = typer.Option(
+        None, help="SQLite output path (default: <data-dir>/ghostbadge.db)."
+    ),
+) -> None:
+    """Validate a dataset directory and load it into SQLite."""
+    import logging
+
+    from ghostbadge.storage import ingest_dir
+
+    logging.basicConfig(level=logging.WARNING, format="%(levelname)s %(name)s: %(message)s")
+    report = ingest_dir(data_dir, db)
+
+    db_path = db or data_dir / "ghostbadge.db"
+    for stream in ("employees", "badge_events", "auth_events", "labels"):
+        counts = getattr(report, stream)
+        typer.echo(f"{stream}: {counts.loaded} loaded, {counts.rejected} rejected")
+    typer.echo(f"db: {db_path}")
+    if report.total_rejected:
+        typer.echo(f"warning: {report.total_rejected} malformed rows skipped (see log above)")
+
+
+@app.command()
 def version() -> None:
     """Print the installed GhostBadge version."""
     from ghostbadge import __version__

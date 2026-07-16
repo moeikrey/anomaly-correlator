@@ -1,0 +1,4 @@
+{"event_id": "a-000001", "ts": "2026-03-02T08:10:00Z", "account": "E001", "host": "WS-3F-ENG-001", "host_zone": "3F-ENG", "login_type": "interactive", "src_ip": "10.4.0.11", "geo": null, "sensitive": false, "result": "success"}
+{"event_id": "a-000002", "ts": "2026-03-02T12:15:00+02:00", "account": "E001", "host": "WS-3F-ENG-001", "host_zone": "3F-ENG", "login_type": "interactive", "src_ip": "10.4.0.11", "geo": null, "sensitive": false, "result": "success"}
+{"event_id": "a-000003", "ts": "2026-03-02T09:00:00Z", "account": "E001", "host": "vpn-gw-1", "host_zone": "3F-ENG", "login_type": "vpn", "src_ip": "172.16.0.11", "geo": {"lat": 37.77, "lon": -122.42, "city": "San Francisco"}, "sensitive": false, "result": "success"}
+{"event_id": "a-000004", "ts": "2026-03-02T09:05:00Z", "host": "WS-2F-SALES-002", "host_zone": "2F-SALES", "login_type": "interactive", "src_ip": "10.3.0.12", "geo": null, "sensitive": false, "result": "success"}

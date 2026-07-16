@@ -1,0 +1,5 @@
+employee_id,name,department,home_zone,permitted_zones,status,term_date
+E001,Fake Person,Engineering,3F-ENG,LOBBY;3F-ENG,active,
+E002,Test Dummy,Sales,2F-SALES,LOBBY;2F-SALES,terminated,2026-03-10
+E003,Bad Status,Engineering,3F-ENG,LOBBY;3F-ENG,retired,
+E004,Zone Missing,Sales,4F-EXEC,LOBBY;2F-SALES,active,
