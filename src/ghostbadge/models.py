@@ -53,6 +53,23 @@ class Employee(BaseModel):
         return self
 
 
+class Label(BaseModel):
+    """Ground-truth row for one injected attack instance.
+
+    The generator's contract with the scoring pipeline: every malicious
+    event injected into the synthetic world is recorded here, and
+    `ghostbadge score` measures each rule's precision/recall against these
+    rows. An injection without a label would silently deflate measured
+    precision — never inject without labeling.
+    """
+
+    scenario: str
+    rule_id_expected: str
+    employee_id: str
+    event_ids: list[str]
+    day: date
+
+
 class BadgeDirection(StrEnum):
     IN = "in"
     OUT = "out"

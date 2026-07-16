@@ -16,7 +16,7 @@ from ghostbadge.generator import (
     finalize_events,
     generate_benign_events,
     generate_roster,
-    write_events_jsonl,
+    write_jsonl,
 )
 from ghostbadge.models import (
     AuthEvent,
@@ -53,10 +53,10 @@ def test_same_seed_reproduces_byte_identical_files(
 ) -> None:
     _, badge_a, auth_a = world
     _, badge_b, auth_b = _build()
-    write_events_jsonl(badge_a, tmp_path / "badge_a.jsonl")
-    write_events_jsonl(badge_b, tmp_path / "badge_b.jsonl")
-    write_events_jsonl(auth_a, tmp_path / "auth_a.jsonl")
-    write_events_jsonl(auth_b, tmp_path / "auth_b.jsonl")
+    write_jsonl(badge_a, tmp_path / "badge_a.jsonl")
+    write_jsonl(badge_b, tmp_path / "badge_b.jsonl")
+    write_jsonl(auth_a, tmp_path / "auth_a.jsonl")
+    write_jsonl(auth_b, tmp_path / "auth_b.jsonl")
     assert _sha256(tmp_path / "badge_a.jsonl") == _sha256(tmp_path / "badge_b.jsonl")
     assert _sha256(tmp_path / "auth_a.jsonl") == _sha256(tmp_path / "auth_b.jsonl")
 

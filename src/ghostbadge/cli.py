@@ -37,29 +37,58 @@ def generate(
     start_date: str = typer.Option(
         "2026-03-02", help="First day of the window (ISO date, a fixed default)."
     ),
+    inject: str = typer.Option(
+        "",
+        help="Comma-separated attack scenarios to inject, or 'all'. Empty = benign only.",
+    ),
+    inject_rate: float = typer.Option(
+        0.1, help="Injected scenario instances per employee-day, split across scenarios."
+    ),
     out: Path = typer.Option(Path("data"), help="Output directory."),
 ) -> None:
-    """Generate the synthetic world (roster + benign events; injection follows)."""
+    """Generate the synthetic world: roster, events, and ground-truth labels."""
     from ghostbadge.generator import (
+        SCENARIOS,
+        World,
         finalize_events,
         generate_benign_events,
         generate_roster,
-        write_events_jsonl,
+        inject_scenarios,
+        resolve_labels,
+        write_jsonl,
         write_roster_csv,
     )
     from ghostbadge.models import EmployeeStatus
 
+    names = [s.strip() for s in inject.split(",") if s.strip()]
+    if names == ["all"]:
+        names = sorted(SCENARIOS)
+    unknown = sorted(set(names) - set(SCENARIOS))
+    if unknown:
+        raise typer.BadParameter(
+            f"unknown scenarios: {', '.join(unknown)} (available: {', '.join(sorted(SCENARIOS))})"
+        )
+
     start = date.fromisoformat(start_date)
     roster = generate_roster(n_employees=employees, start_date=start, days=days, seed=seed)
     badge, auth = generate_benign_events(roster, start_date=start, days=days, seed=seed)
-    finalize_events(badge, auth)
+    world = World(roster=roster, badge=badge, auth=auth, start_date=start, days=days)
+    pending = inject_scenarios(world, names, seed=seed, rate=inject_rate)
+    finalize_events(world.badge, world.auth)
+    labels = resolve_labels(pending)
 
     roster_path = out / "hr_roster.csv"
-    write_roster_csv(roster, roster_path)
-    write_events_jsonl(badge, out / "badge_events.jsonl")
-    write_events_jsonl(auth, out / "auth_events.jsonl")
+    write_roster_csv(world.roster, roster_path)
+    write_jsonl(world.badge, out / "badge_events.jsonl")
+    write_jsonl(world.auth, out / "auth_events.jsonl")
+    write_jsonl(labels, out / "labels.jsonl")
 
-    n_term = sum(1 for e in roster if e.status is EmployeeStatus.TERMINATED)
-    typer.echo(f"wrote {roster_path} ({len(roster)} employees, {n_term} terminated in window)")
-    typer.echo(f"wrote {out / 'badge_events.jsonl'} ({len(badge)} events)")
-    typer.echo(f"wrote {out / 'auth_events.jsonl'} ({len(auth)} events)")
+    n_term = sum(1 for e in world.roster if e.status is EmployeeStatus.TERMINATED)
+    typer.echo(f"wrote {roster_path} ({len(world.roster)} employees, {n_term} terminated)")
+    typer.echo(f"wrote {out / 'badge_events.jsonl'} ({len(world.badge)} events)")
+    typer.echo(f"wrote {out / 'auth_events.jsonl'} ({len(world.auth)} events)")
+    scenario_counts = sorted({label.scenario for label in labels})
+    typer.echo(
+        f"wrote {out / 'labels.jsonl'} ({len(labels)} labels"
+        + (f" across {len(scenario_counts)} scenarios)" if labels else ", benign world)")
+    )
