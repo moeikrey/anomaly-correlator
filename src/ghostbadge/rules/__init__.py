@@ -4,7 +4,10 @@ Importing this package registers every rule module; `all_rules()` returns
 ready-to-run instances ordered by id.
 """
 
-from ghostbadge.rules import gb_001_ghost_login  # noqa: F401  (registers GB-001)
+from ghostbadge.rules import (
+    gb_001_ghost_login,  # noqa: F401  (registers GB-001)
+    gb_002_impossible_presence,  # noqa: F401  (registers GB-002)
+)
 from ghostbadge.rules.base import RULE_REGISTRY, Rule, all_rules, register_rule
 from ghostbadge.rules.windows import DayWindow, build_day_windows
 
